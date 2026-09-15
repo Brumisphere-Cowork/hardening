@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<ruleset name="Brumisphere">
+	<description>Conventions WordPress appliquées au code Brumisphère.</description>
+
+	<file>src</file>
+	<file>mu-plugin</file>
+
+	<arg name="extensions" value="php"/>
+	<arg name="colors"/>
+	<arg value="sp"/>
+
+	<rule ref="WordPress">
+		<!-- Les classes suivent PSR-4 : Entetes.php, pas class-entetes.php. -->
+		<exclude name="WordPress.Files.FileName"/>
+	</rule>
+
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="brumisphere"/>
+				<element value="Brumisphere\Hardening"/>
+			</property>
+		</properties>
+	</rule>
+
+	<rule ref="PHPCompatibilityWP"/>
+	<config name="testVersion" value="8.2-"/>
+	<config name="minimum_wp_version" value="6.5"/>
+</ruleset>
