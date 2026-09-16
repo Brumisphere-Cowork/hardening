@@ -122,6 +122,7 @@ conflit avec un `wp-config.php` qui aurait déjà posé la constante.
 ## Vérification
 
 ```bash
+composer install    # une fois : installe les outils de test
 composer test       # 37 cas, sans installation de WordPress
 composer lint       # PHPCS, conventions WordPress
 composer analyse    # PHPStan niveau 6
@@ -150,7 +151,7 @@ identiques : c'est ce qui prouve que le durcissement est au bon endroit.
 |---|---|
 | Version de WordPress exposée | `Divulgation` |
 | Énumération d'utilisateurs | `Enumeration` |
-| `xmlrpc.php` en 403 | `Divulgation` |
+| `wp/xmlrpc.php` en 403 | `Divulgation` |
 | En-têtes de sécurité | `Entetes` |
 | Upload : SVG interdit ou assaini | `Televersement` |
 | Comptes, mots de passe, double authentification | **hors périmètre**, geste d'exploitation |

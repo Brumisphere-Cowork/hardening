@@ -48,8 +48,10 @@ verifier "X-Frame-Options"         "SAMEORIGIN"                       "$(entete 
 # X-Pingback ne doit plus être annoncé.
 verifier "X-Pingback retiré"       ""                                 "$(entete 'X-Pingback')"
 
-# XML-RPC : la requête est arrêtée avant WordPress, donc 403 et non 405.
-verifier "xmlrpc.php"              "403"                              "$(code_http "$BASE/xmlrpc.php")"
+# XML-RPC : la requête est arrêtée avant WordPress, donc 403 et non 405. Le cœur vit dans
+# wp/ (DEC-009) : c'est là qu'est le script. À la racine il n'existe pas, et un 404 y est
+# normal — le contrôle d'après déploiement de ci-workflows vise le même chemin.
+verifier "wp/xmlrpc.php"           "403"                              "$(code_http "$BASE/wp/xmlrpc.php")"
 
 # Énumération : l'archive d'auteur et le point REST des utilisateurs.
 verifier "/?author=1"              "404"                              "$(code_http "$BASE/?author=1")"
