@@ -1,0 +1,21 @@
+# Fins de ligne — ce dépôt est normalisé en LF, y compris dans la copie de travail.
+#
+# Sans cette règle, Git pour Windows rend les fichiers en CRLF à la sortie du dépôt.
+# Un script shell ainsi converti échoue dès qu'il s'exécute sous Linux — sur un runner
+# GitHub comme dans DDEV — avec un message qui n'aide pas :
+#
+#     bash: ./script.sh: /usr/bin/env: bad interpreter: No such file or directory
+#
+# La cause est le retour chariot resté collé à la fin de la ligne #!.
+
+* text=auto eol=lf
+
+# Scripts Windows : eux ont besoin de CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Binaires : aucune conversion, aucune tentative de fusion ligne à ligne.
+*.png binary
+*.jpg binary
+*.zip binary
