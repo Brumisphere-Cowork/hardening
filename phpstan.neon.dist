@@ -1,0 +1,10 @@
+# Stubs WordPress (add_filter, WP_Query…) : sans cette extension, PHPStan ne connaît aucune fonction du cœur.
+includes:
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+    level: 6
+    paths:
+        - src
+    # Le retour d'un filtre n'est jamais garanti par son docblock : les contrôles is_array() restent utiles.
+    treatPhpDocTypesAsCertain: false

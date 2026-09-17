@@ -29,10 +29,12 @@ final class Hardening {
 	/**
 	 * Version du paquet.
 	 */
-	public const VERSION = '1.0.0';
+	public const VERSION = '1.0.17';
 
 	/**
 	 * Empêche une double amorce si le mu-plugin est inclus deux fois.
+	 *
+	 * @var bool
 	 */
 	private static bool $amorce = false;
 
@@ -67,6 +69,7 @@ final class Hardening {
 		Divulgation::enregistrer();
 		Enumeration::enregistrer();
 		Fichiers::enregistrer();
+		Coeur::enregistrer();
 		Televersement::enregistrer();
 	}
 
@@ -102,6 +105,7 @@ final class Hardening {
 			'xmlrpc'           => true,
 			'enumeration'      => true,
 			'edition_fichiers' => true,
+			'maj_coeur'        => true,
 			'televersement'    => true,
 		);
 	}

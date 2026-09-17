@@ -23,6 +23,13 @@
 		</properties>
 	</rule>
 
+	<!-- Crochets publics nommés brumisphere/hardening/… : « / » admis comme séparateur. -->
+	<rule ref="WordPress.NamingConventions.ValidHookName">
+		<properties>
+			<property name="additionalWordDelimiters" value="/"/>
+		</properties>
+	</rule>
+
 	<rule ref="PHPCompatibilityWP"/>
 	<config name="testVersion" value="8.2-"/>
 	<config name="minimum_wp_version" value="6.5"/>

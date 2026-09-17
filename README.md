@@ -15,6 +15,7 @@ Durcissement WordPress partagé de Brumisphère.
 | `Divulgation` | Version de WordPress, liens de découverte, XML-RPC, message de connexion |
 | `Enumeration` | Archives d'auteur et point REST des utilisateurs |
 | `Fichiers` | Éditeur de code de l'administration |
+| `Coeur` | Mises à jour du cœur WordPress, qui appartiennent à Composer |
 | `Televersement` | Extensions exécutables et SVG dans la médiathèque |
 
 ## Ce qu'il ne fait pas
@@ -67,6 +68,7 @@ ces contrôles : un durcissement qu'il faut penser à allumer n'est pas allumé.
 | `xmlrpc` | `true` | Coupe XML-RPC et répond 403 sur `xmlrpc.php` |
 | `enumeration` | `true` | Archives d'auteur en 404, `/wp/v2/users` retiré aux anonymes |
 | `edition_fichiers` | `true` | Retire l'éditeur de code de l'administration |
+| `maj_coeur` | `true` | Coupe les mises à jour automatiques du cœur, l'annonce des nouvelles versions et l'e-mail correspondant |
 | `televersement` | `true` | Refuse les extensions exécutables, retire le SVG |
 
 Un site désactive un module depuis son propre mu-plugin :
@@ -114,6 +116,11 @@ le site dans un cadre depuis un autre domaine, l'en-tête doit être ajusté par
 mises à jour depuis l'administration, donc celles de Flatsome et d'ACF Pro, dont le
 système de mise à jour repose sur un code d'achat enregistré en base de données (DEC-002).
 Le durcissement casserait la chaîne de mise à jour des deux produits sous licence du parc.
+
+Le **cœur**, lui, est coupé par le module `Coeur` : installé par Composer dans `wp/` et
+livré par la chaîne de déploiement, il ne doit jamais être mis à jour par WordPress sur
+le serveur. L'administration n'annonce plus de nouvelle version ; la veille se fait côté
+dépôt, par Composer.
 Seul l'éditeur de code est retiré, par le filtre `file_mod_allowed`, ce qui n'entre pas en
 conflit avec un `wp-config.php` qui aurait déjà posé la constante.
 
@@ -123,7 +130,7 @@ conflit avec un `wp-config.php` qui aurait déjà posé la constante.
 
 ```bash
 composer install    # une fois : installe les outils de test
-composer test       # 37 cas, sans installation de WordPress
+composer test       # 42 cas, sans installation de WordPress
 composer lint       # PHPCS, conventions WordPress
 composer analyse    # PHPStan niveau 6
 ```
