@@ -14,9 +14,10 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Coupe les mises à jour du cœur, qui appartiennent à Composer.
  *
- * Le cœur est installé par Composer dans wp/ et livré par la chaîne de déploiement. Une
- * mise à jour faite par WordPress lui-même sur le serveur serait écrasée au déploiement
- * suivant, ou ferait tourner en production une version jamais vue en préproduction.
+ * Le cœur est installé par Composer, descendu à la racine du site (DEC-023) et livré par
+ * la chaîne de déploiement. Une mise à jour faite par WordPress lui-même sur le serveur
+ * serait écrasée au déploiement suivant, ou ferait tourner en production une version
+ * jamais vue en préproduction.
  * L'annonce « WordPress x.y est disponible » invite à ce geste : elle est retirée aussi.
  *
  * Les extensions et les thèmes ne sont pas concernés : Flatsome et ACF Pro se mettent à

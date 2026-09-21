@@ -117,8 +117,9 @@ mises à jour depuis l'administration, donc celles de Flatsome et d'ACF Pro, don
 système de mise à jour repose sur un code d'achat enregistré en base de données (DEC-002).
 Le durcissement casserait la chaîne de mise à jour des deux produits sous licence du parc.
 
-Le **cœur**, lui, est coupé par le module `Coeur` : installé par Composer dans `wp/` et
-livré par la chaîne de déploiement, il ne doit jamais être mis à jour par WordPress sur
+Le **cœur**, lui, est coupé par le module `Coeur` : installé par Composer puis descendu à
+la racine du site (DEC-023) et livré par la chaîne de déploiement, il ne doit jamais être
+mis à jour par WordPress sur
 le serveur. L'administration n'annonce plus de nouvelle version ; la veille se fait côté
 dépôt, par Composer.
 Seul l'éditeur de code est retiré, par le filtre `file_mod_allowed`, ce qui n'entre pas en
@@ -158,7 +159,7 @@ identiques : c'est ce qui prouve que le durcissement est au bon endroit.
 |---|---|
 | Version de WordPress exposée | `Divulgation` |
 | Énumération d'utilisateurs | `Enumeration` |
-| `wp/xmlrpc.php` en 403 | `Divulgation` |
+| `/xmlrpc.php` en 403 | `Divulgation` |
 | En-têtes de sécurité | `Entetes` |
 | Upload : SVG interdit ou assaini | `Televersement` |
 | Comptes, mots de passe, double authentification | **hors périmètre**, geste d'exploitation |
