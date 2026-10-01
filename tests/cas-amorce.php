@@ -96,6 +96,7 @@ bru_cas(
 			array( 'filtres', 'xmlrpc_methods', Divulgation::class, 'vider_methodes' ),
 			array( 'filtres', 'login_errors', Divulgation::class, 'message_generique' ),
 			array( 'actions', 'template_redirect', Enumeration::class, 'bloquer_archive_auteur' ),
+			array( 'filtres', 'redirect_canonical', Enumeration::class, 'refuser_redirection_auteur' ),
 			array( 'filtres', 'rest_endpoints', Enumeration::class, 'retirer_points_utilisateurs' ),
 			array( 'filtres', 'file_mod_allowed', Fichiers::class, 'interdire_edition' ),
 			array( 'filtres', 'upload_mimes', Televersement::class, 'retirer_svg' ),

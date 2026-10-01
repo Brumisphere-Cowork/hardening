@@ -90,3 +90,92 @@ bru_cas(
 		bru_faux( $requete->est_404, 'la requête reste intacte' );
 	}
 );
+
+/**
+ * Priorité du blocage d'archive d'auteur sur template_redirect.
+ *
+ * @return int|null Null si le blocage n'est pas branché.
+ */
+function bru_priorite_blocage_auteur(): ?int {
+	foreach ( $GLOBALS['bru']['actions']['template_redirect'] ?? array() as $entree ) {
+		if ( array( Enumeration::class, 'bloquer_archive_auteur' ) === $entree[0] ) {
+			return $entree[1];
+		}
+	}
+
+	return null;
+}
+
+bru_cas(
+	'le blocage d’archive d’auteur passe avant redirect_canonical',
+	static function (): void {
+		Hardening::boot();
+
+		$priorite = bru_priorite_blocage_auteur();
+
+		bru_vrai( null !== $priorite, 'le blocage est branché sur template_redirect' );
+		bru_vrai(
+			10 > $priorite,
+			'le cœur branche redirect_canonical en 10 avant les mu-plugins : à égalité, la redirection part avant le 404 — priorité obtenue ' . var_export( $priorite, true )
+		);
+	}
+);
+
+bru_cas(
+	'/?author=1 ne redirige plus vers l’identifiant',
+	static function (): void {
+		Hardening::boot();
+		$GLOBALS['bru']['requete']['author'] = '1';
+
+		bru_vrai(
+			bru_branche( 'filtres', 'redirect_canonical', Enumeration::class, 'refuser_redirection_auteur' ),
+			'le refus est branché sur redirect_canonical'
+		);
+		bru_egal(
+			false,
+			apply_filters( 'redirect_canonical', 'http://exemple.test/author/admin/', 'http://exemple.test/?author=1' ),
+			'la redirection canonique est refusée'
+		);
+	}
+);
+
+bru_cas(
+	'une archive d’auteur par son nom ne redirige pas non plus',
+	static function (): void {
+		Hardening::boot();
+		$GLOBALS['bru']['requete']['author_name'] = 'admin';
+
+		bru_egal(
+			false,
+			apply_filters( 'redirect_canonical', 'http://exemple.test/author/admin/', 'http://exemple.test/author/admin' ),
+			'la redirection canonique est refusée'
+		);
+	}
+);
+
+bru_cas(
+	'une requête ordinaire garde sa redirection canonique',
+	static function (): void {
+		Hardening::boot();
+
+		bru_egal(
+			'http://exemple.test/contact/',
+			apply_filters( 'redirect_canonical', 'http://exemple.test/contact/', 'http://exemple.test/contact' ),
+			'la redirection est rendue intacte'
+		);
+	}
+);
+
+bru_cas(
+	'module désactivé, /?author=1 garde sa redirection',
+	static function (): void {
+		Hardening::boot( array( 'enumeration' => false ) );
+		$GLOBALS['bru']['requete']['author'] = '1';
+
+		bru_egal(
+			'http://exemple.test/author/admin/',
+			apply_filters( 'redirect_canonical', 'http://exemple.test/author/admin/', 'http://exemple.test/?author=1' ),
+			'rien n’est refusé'
+		);
+	}
+);

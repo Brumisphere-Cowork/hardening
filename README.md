@@ -66,7 +66,7 @@ ces contrôles : un durcissement qu'il faut penser à allumer n'est pas allumé.
 | `entetes_hsts` | `true` | Ajoute HSTS, uniquement si la réponse est en HTTPS |
 | `divulgation` | `true` | Masque la version, les liens de découverte, le motif d'échec de connexion |
 | `xmlrpc` | `true` | Coupe XML-RPC et répond 403 sur `xmlrpc.php` |
-| `enumeration` | `true` | Archives d'auteur en 404, `/wp/v2/users` retiré aux anonymes |
+| `enumeration` | `true` | Archives d'auteur en 404 sans redirection préalable, `/wp/v2/users` retiré aux anonymes |
 | `edition_fichiers` | `true` | Retire l'éditeur de code de l'administration |
 | `maj_coeur` | `true` | Coupe les mises à jour automatiques du cœur, l'annonce des nouvelles versions et l'e-mail correspondant |
 | `televersement` | `true` | Refuse les extensions exécutables, retire le SVG |
@@ -104,6 +104,9 @@ vaut mieux les connaître avant la mise en service que les découvrir en recette
 
 **`enumeration` renvoie 404 sur toutes les archives d'auteur**, flux compris. Un site
 qui publie réellement des pages d'auteur doit désactiver le module, pas le contourner.
+
+**`enumeration` ne couvre pas oEmbed.** La réponse `/wp-json/oembed/1.0/embed` d'un
+contenu publie `author_name` et `author_url`, qui contient l'identifiant.
 
 **`televersement` refuse le SVG.** Un SVG est un document XML qui peut contenir du
 script, exécuté dans le contexte du domaine. Un site qui en a besoin installe d'abord un
@@ -182,4 +185,5 @@ Versionnement sémantique. Les sites contraignent en `^1.0`.
 | Changement de signature d'une méthode publique | **Majeur** |
 
 Rendre un contrôle plus strict par défaut est une rupture : un site du parc peut en
-dépendre sans le savoir. `CHANGELOG.md` est obligatoire dès le premier tag.
+dépendre sans le savoir. `CHANGELOG.md` est obligatoire dès le premier tag. Les numéros sont communs à tout le parc : une
+publication où ce paquet ne change pas ne lui pose pas de tag, d'où des numéros sautés.

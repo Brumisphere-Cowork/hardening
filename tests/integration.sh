@@ -35,6 +35,13 @@ code_http() {
 	curl -s -o /dev/null -w '%{http_code}' -L --max-redirs 3 "$1"
 }
 
+# Code de la PREMIÈRE réponse, sans suivre les redirections. Une fuite par redirection
+# se lit dans la première réponse : en suivant (-L), on ne voyait que le 404 final de
+# l'archive nommée, et le 301 qui donnait l'identifiant passait inaperçu (1.0.27).
+code_sans_suivre() {
+	curl -s -o /dev/null -w '%{http_code}' "$1"
+}
+
 entete() {
 	curl -sI "$BASE/" | tr -d '\r' | grep -i "^$1:" | head -n 1 | cut -d' ' -f2- || true
 }
@@ -54,7 +61,7 @@ verifier "X-Pingback retiré"       ""                                 "$(entete
 verifier "/xmlrpc.php"             "403"                              "$(code_http "$BASE/xmlrpc.php")"
 
 # Énumération : l'archive d'auteur et le point REST des utilisateurs.
-verifier "/?author=1"              "404"                              "$(code_http "$BASE/?author=1")"
+verifier "/?author=1, sans suivre" "404"                              "$(code_sans_suivre "$BASE/?author=1")"
 verifier "/wp-json/wp/v2/users"    "404"                              "$(code_http "$BASE/wp-json/wp/v2/users")"
 
 # La version de WordPress ne doit pas apparaître dans la source.

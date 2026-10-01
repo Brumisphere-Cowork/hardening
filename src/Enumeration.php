@@ -37,10 +37,21 @@ final class Enumeration {
 	);
 
 	/**
+	 * Priorité du blocage d'archive sur template_redirect.
+	 *
+	 * Le cœur branche redirect_canonical sur la même accroche, en 10, depuis
+	 * default-filters.php, chargé avant les mu-plugins. À priorité égale, le premier
+	 * enregistré passe : jusqu'en 1.0.20, /?author=1 partait en 301 vers l'archive
+	 * nommée, suivie d'un exit, et le 404 n'arrivait jamais.
+	 */
+	private const PRIORITE_BLOCAGE = 1;
+
+	/**
 	 * Branche le module.
 	 */
 	public static function enregistrer(): void {
-		add_action( 'template_redirect', array( self::class, 'bloquer_archive_auteur' ) );
+		add_action( 'template_redirect', array( self::class, 'bloquer_archive_auteur' ), self::PRIORITE_BLOCAGE );
+		add_filter( 'redirect_canonical', array( self::class, 'refuser_redirection_auteur' ) );
 		add_filter( 'rest_endpoints', array( self::class, 'retirer_points_utilisateurs' ) );
 	}
 
@@ -62,6 +73,34 @@ final class Enumeration {
 
 		status_header( 404 );
 		nocache_headers();
+	}
+
+	/**
+	 * Refuse la redirection canonique d'une requête d'auteur.
+	 *
+	 * Public car branché sur un filtre ; ne pas appeler directement.
+	 *
+	 * Le blocage d'archive passe avant redirect_canonical, mais set_404() remet
+	 * is_author() à faux : redirect_canonical passe alors par sa branche 404 et peut
+	 * encore normaliser l'adresse. Les variables de requête survivent à set_404() ;
+	 * c'est sur elles que porte le refus.
+	 *
+	 * @param mixed $redirection Adresse proposée par WordPress, ou false.
+	 * @return mixed False pour une requête d'auteur, sinon la valeur reçue.
+	 */
+	public static function refuser_redirection_auteur( $redirection ) {
+		if ( ! Hardening::actif( 'enumeration' ) || ! self::requete_auteur() ) {
+			return $redirection;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Indique si la requête vise une archive d'auteur, par numéro ou par nom.
+	 */
+	private static function requete_auteur(): bool {
+		return ! empty( get_query_var( 'author' ) ) || ! empty( get_query_var( 'author_name' ) );
 	}
 
 	/**

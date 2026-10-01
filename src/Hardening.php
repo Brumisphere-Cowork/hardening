@@ -29,7 +29,7 @@ final class Hardening {
 	/**
 	 * Version du paquet.
 	 */
-	public const VERSION = '1.0.17';
+	public const VERSION = '1.0.27';
 
 	/**
 	 * Empêche une double amorce si le mu-plugin est inclus deux fois.

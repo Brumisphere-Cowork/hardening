@@ -50,6 +50,7 @@ function bru_reinitialiser(): void {
 		'is_author'         => false,
 		'is_user_logged_in' => false,
 		'headers_sent'      => false,
+		'requete'           => array(),
 	);
 
 	\Brumisphere\Hardening\Hardening::reinitialiser();
@@ -194,3 +195,14 @@ class WP_Query { // phpcs:ignore
 // header() est une fonction interne, elle ne peut pas être redéfinie globalement.
 // Le double vit donc dans le namespace du paquet, où PHP le résout en priorité.
 require_once __DIR__ . '/doubles-namespace.php';
+
+/**
+ * Lit une variable de la requête courante.
+ *
+ * @param string $variable Nom de la variable.
+ * @param mixed  $defaut   Valeur par défaut.
+ * @return mixed
+ */
+function get_query_var( string $variable, $defaut = '' ) {
+	return $GLOBALS['bru']['requete'][ $variable ] ?? $defaut;
+}
