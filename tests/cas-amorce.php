@@ -15,13 +15,22 @@ use Brumisphere\Hardening\Hardening;
 use Brumisphere\Hardening\Televersement;
 
 bru_cas(
-	'tous les interrupteurs sont actifs par défaut',
+	'tous les interrupteurs sont actifs par défaut, sauf les exceptions nommées',
 	static function (): void {
 		Hardening::boot();
 
+		// Principe : un durcissement qu'il faut penser à allumer n'est pas allumé. Chaque
+		// exception est justifiée dans le README (Configuration) et le CHANGELOG, et passe à
+		// true à la version majeure suivante. Toute autre clé éteinte fait échouer ce cas.
+		$eteints = array();
+
 		foreach ( array_keys( Hardening::defauts() ) as $cle ) {
-			bru_vrai( Hardening::actif( $cle ), 'interrupteur actif par défaut : ' . $cle );
+			if ( ! Hardening::actif( $cle ) ) {
+				$eteints[] = $cle;
+			}
 		}
+
+		bru_egal( array( 'oembed_auteur' ), $eteints, 'seules les exceptions nommées sont éteintes par défaut' );
 	}
 );
 
@@ -98,6 +107,7 @@ bru_cas(
 			array( 'actions', 'template_redirect', Enumeration::class, 'bloquer_archive_auteur' ),
 			array( 'filtres', 'redirect_canonical', Enumeration::class, 'refuser_redirection_auteur' ),
 			array( 'filtres', 'rest_endpoints', Enumeration::class, 'retirer_points_utilisateurs' ),
+			array( 'filtres', 'oembed_response_data', Enumeration::class, 'retirer_auteur_oembed' ),
 			array( 'filtres', 'file_mod_allowed', Fichiers::class, 'interdire_edition' ),
 			array( 'filtres', 'upload_mimes', Televersement::class, 'retirer_svg' ),
 			array( 'filtres', 'wp_handle_upload_prefilter', Televersement::class, 'refuser_fichier_dangereux' ),

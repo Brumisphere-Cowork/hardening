@@ -179,3 +179,72 @@ bru_cas(
 		);
 	}
 );
+
+/**
+ * Réponse oEmbed telle que WordPress la construit pour un contenu publié.
+ *
+ * @return array<string, mixed>
+ */
+function bru_reponse_oembed(): array {
+	return array(
+		'version'       => '1.0',
+		'provider_name' => 'Exemple',
+		'provider_url'  => 'http://exemple.test',
+		'author_name'   => 'admin',
+		'author_url'    => 'http://exemple.test/author/admin/',
+		'title'         => 'Contact',
+		'type'          => 'rich',
+	);
+}
+
+bru_cas(
+	'oembed_auteur est déclaré, éteint par défaut',
+	static function (): void {
+		$defauts = Hardening::defauts();
+
+		bru_vrai( array_key_exists( 'oembed_auteur', $defauts ), 'l’interrupteur est déclaré' );
+		bru_faux( $defauts['oembed_auteur'] ?? true, 'il est éteint par défaut : l’allumer est un choix du site' );
+	}
+);
+
+bru_cas(
+	'oembed_auteur allumé, oEmbed ne publie plus l’auteur',
+	static function (): void {
+		Hardening::boot( array( 'oembed_auteur' => true ) );
+
+		bru_vrai(
+			bru_branche( 'filtres', 'oembed_response_data', Enumeration::class, 'retirer_auteur_oembed' ),
+			'le retrait est branché sur oembed_response_data'
+		);
+
+		$reponse = apply_filters( 'oembed_response_data', bru_reponse_oembed(), null, 600, 338 );
+
+		bru_faux( isset( $reponse['author_name'] ), 'author_name est retiré' );
+		bru_faux( isset( $reponse['author_url'] ), 'author_url, qui contient l’identifiant, est retiré' );
+		bru_egal( 'Contact', $reponse['title'] ?? null, 'le reste de la réponse est intact' );
+	}
+);
+
+bru_cas(
+	'oembed_auteur ne dépend pas d’enumeration',
+	static function (): void {
+		Hardening::boot( array( 'enumeration' => false, 'oembed_auteur' => true ) );
+
+		$reponse = apply_filters( 'oembed_response_data', bru_reponse_oembed(), null, 600, 338 );
+
+		bru_faux( isset( $reponse['author_url'] ), 'les deux interrupteurs sont indépendants' );
+	}
+);
+
+bru_cas(
+	'oembed_auteur éteint, la réponse oEmbed est intacte',
+	static function (): void {
+		Hardening::boot();
+
+		bru_egal(
+			bru_reponse_oembed(),
+			apply_filters( 'oembed_response_data', bru_reponse_oembed(), null, 600, 338 ),
+			'rien n’est retiré'
+		);
+	}
+);

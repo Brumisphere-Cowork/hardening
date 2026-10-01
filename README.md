@@ -13,7 +13,7 @@ Durcissement WordPress partagé de Brumisphère.
 | `Hardening` | Point d'entrée, résolution des interrupteurs |
 | `Entetes` | En-têtes de sécurité HTTP sur les réponses publiques |
 | `Divulgation` | Version de WordPress, liens de découverte, XML-RPC, message de connexion |
-| `Enumeration` | Archives d'auteur et point REST des utilisateurs |
+| `Enumeration` | Archives d'auteur, point REST des utilisateurs, auteur des réponses oEmbed |
 | `Fichiers` | Éditeur de code de l'administration |
 | `Coeur` | Mises à jour du cœur WordPress, qui appartiennent à Composer |
 | `Televersement` | Extensions exécutables et SVG dans la médiathèque |
@@ -60,6 +60,10 @@ alphabétique des noms de fichiers, et l'autoloader doit être en place avant l'
 Tous les modules sont actifs par défaut. La recette de sécurité d'un site livré exige
 ces contrôles : un durcissement qu'il faut penser à allumer n'est pas allumé.
 
+Une exception : `oembed_auteur`, ajouté en 1.1.0, est éteint par défaut. L'allumer par
+défaut aurait été une version majeure (voir « Versionnement »), hors de la contrainte
+`^1.0` des sites. Il passera à `true` à la prochaine version majeure.
+
 | Interrupteur | Défaut | Effet |
 |---|---|---|
 | `entetes` | `true` | Envoi des en-têtes de sécurité |
@@ -67,6 +71,7 @@ ces contrôles : un durcissement qu'il faut penser à allumer n'est pas allumé.
 | `divulgation` | `true` | Masque la version, les liens de découverte, le motif d'échec de connexion |
 | `xmlrpc` | `true` | Coupe XML-RPC et répond 403 sur `xmlrpc.php` |
 | `enumeration` | `true` | Archives d'auteur en 404 sans redirection préalable, `/wp/v2/users` retiré aux anonymes |
+| `oembed_auteur` | `false` | Retire `author_name` et `author_url`, qui contient l'identifiant, des réponses oEmbed |
 | `edition_fichiers` | `true` | Retire l'éditeur de code de l'administration |
 | `maj_coeur` | `true` | Coupe les mises à jour automatiques du cœur, l'annonce des nouvelles versions et l'e-mail correspondant |
 | `televersement` | `true` | Refuse les extensions exécutables, retire le SVG |
@@ -105,8 +110,10 @@ vaut mieux les connaître avant la mise en service que les découvrir en recette
 **`enumeration` renvoie 404 sur toutes les archives d'auteur**, flux compris. Un site
 qui publie réellement des pages d'auteur doit désactiver le module, pas le contourner.
 
-**`enumeration` ne couvre pas oEmbed.** La réponse `/wp-json/oembed/1.0/embed` d'un
-contenu publie `author_name` et `author_url`, qui contient l'identifiant.
+**`enumeration` ne couvre pas oEmbed : c'est le rôle d'`oembed_auteur`, éteint par
+défaut.** Sans lui, la réponse `/wp-json/oembed/1.0/embed` d'un contenu publie
+`author_name` et `author_url`, qui contient l'identifiant. Un site qui allume
+`enumeration` allume aussi `oembed_auteur`, sinon l'identifiant reste lisible.
 
 **`televersement` refuse le SVG.** Un SVG est un document XML qui peut contenir du
 script, exécuté dans le contexte du domaine. Un site qui en a besoin installe d'abord un

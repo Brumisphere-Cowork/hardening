@@ -22,6 +22,10 @@ defined( 'ABSPATH' ) || exit;
  * Connaître l'identifiant ne donne aucun accès, mais divise par deux le travail d'une
  * attaque par force brute : il ne reste qu'à trouver le mot de passe.
  *
+ * oEmbed publie aussi l'auteur d'un contenu : author_name, et author_url, l'adresse de
+ * l'archive d'auteur, qui contient l'identifiant. Ce troisième chemin a son propre
+ * interrupteur, oembed_auteur, éteint par défaut jusqu'à la prochaine version majeure.
+ *
  * Conséquence à connaître. Les archives d'auteur renvoient 404, y compris leurs flux.
  * Un site de presse qui publie des pages d'auteur doit désactiver ce module plutôt que
  * de le contourner.
@@ -53,6 +57,7 @@ final class Enumeration {
 		add_action( 'template_redirect', array( self::class, 'bloquer_archive_auteur' ), self::PRIORITE_BLOCAGE );
 		add_filter( 'redirect_canonical', array( self::class, 'refuser_redirection_auteur' ) );
 		add_filter( 'rest_endpoints', array( self::class, 'retirer_points_utilisateurs' ) );
+		add_filter( 'oembed_response_data', array( self::class, 'retirer_auteur_oembed' ) );
 	}
 
 	/**
@@ -125,5 +130,27 @@ final class Enumeration {
 		}
 
 		return $points;
+	}
+
+	/**
+	 * Retire l'auteur de la réponse oEmbed d'un contenu.
+	 *
+	 * Public car branché sur un filtre ; ne pas appeler directement.
+	 *
+	 * WordPress y publie author_name et author_url, l'adresse de l'archive d'auteur, qui
+	 * contient l'identifiant de connexion. L'interrupteur oembed_auteur est indépendant
+	 * d'enumeration et éteint par défaut : l'allumer par défaut serait une version majeure.
+	 *
+	 * @param array<string, mixed> $donnees Réponse oEmbed construite par WordPress.
+	 * @return array<string, mixed>
+	 */
+	public static function retirer_auteur_oembed( array $donnees ): array {
+		if ( ! Hardening::actif( 'oembed_auteur' ) ) {
+			return $donnees;
+		}
+
+		unset( $donnees['author_name'], $donnees['author_url'] );
+
+		return $donnees;
 	}
 }

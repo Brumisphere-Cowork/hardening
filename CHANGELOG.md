@@ -3,6 +3,25 @@
 Une entrée par version publiée, la plus récente en tête. Classement des versions :
 section « Politique de version » du README.
 
+## 1.1.0 — 2026-10-01
+
+Version mineure.
+
+### Ajouté
+
+- **Interrupteur `oembed_auteur`, éteint par défaut.** Allumé, il retire `author_name` et
+  `author_url` de la réponse oEmbed d'un contenu (filtre `oembed_response_data`).
+  `author_url` est l'adresse de l'archive d'auteur : elle contient l'identifiant de
+  connexion, qu'`enumeration` masque partout ailleurs depuis la 1.0.27. Les deux
+  interrupteurs sont indépendants.
+
+### Classement
+
+Nouvel interrupteur, éteint par défaut : aucun site ne change de comportement sans le
+décider. Mineure, selon la table du README. C'est la première exception au principe « tous
+les modules actifs par défaut » : allumer `oembed_auteur` par défaut serait une version
+majeure. Il le sera à la prochaine.
+
 ## 1.0.27 — 2026-10-01
 
 Correctif.

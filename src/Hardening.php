@@ -29,7 +29,7 @@ final class Hardening {
 	/**
 	 * Version du paquet.
 	 */
-	public const VERSION = '1.0.27';
+	public const VERSION = '1.1.0';
 
 	/**
 	 * Empêche une double amorce si le mu-plugin est inclus deux fois.
@@ -92,8 +92,10 @@ final class Hardening {
 	/**
 	 * Interrupteurs livrés par défaut.
 	 *
-	 * Tous actifs. La recette de sécurité d'un site livré exige ces contrôles : un
-	 * durcissement qu'il faut penser à allumer n'est pas allumé.
+	 * Tous actifs, sauf oembed_auteur. La recette de sécurité d'un site livré exige ces
+	 * contrôles : un durcissement qu'il faut penser à allumer n'est pas allumé. oembed_auteur,
+	 * ajouté en 1.1.0, ne pouvait être actif par défaut sans version majeure (README,
+	 * Versionnement) : il le deviendra à la prochaine.
 	 *
 	 * @return array<string, bool>
 	 */
@@ -107,6 +109,7 @@ final class Hardening {
 			'edition_fichiers' => true,
 			'maj_coeur'        => true,
 			'televersement'    => true,
+			'oembed_auteur'    => false,
 		);
 	}
 
