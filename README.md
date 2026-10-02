@@ -60,9 +60,10 @@ alphabétique des noms de fichiers, et l'autoloader doit être en place avant l'
 Tous les modules sont actifs par défaut. La recette de sécurité d'un site livré exige
 ces contrôles : un durcissement qu'il faut penser à allumer n'est pas allumé.
 
-Une exception : `oembed_auteur`, ajouté en 1.1.0, est éteint par défaut. L'allumer par
-défaut aurait été une version majeure (voir « Versionnement »), hors de la contrainte
-`^1.0` des sites. Il passera à `true` à la prochaine version majeure.
+Deux exceptions, éteintes par défaut parce que les allumer aurait été une version majeure
+(voir « Versionnement »), hors de la contrainte `^1.0` des sites : `oembed_auteur`, ajouté
+en 1.1.0, et `svg_restreint`, ajouté en 1.2.0. Elles passeront à `true` à la prochaine
+version majeure.
 
 | Interrupteur | Défaut | Effet |
 |---|---|---|
@@ -74,7 +75,8 @@ défaut aurait été une version majeure (voir « Versionnement »), hors de la 
 | `oembed_auteur` | `false` | Retire `author_name` et `author_url`, qui contient l'identifiant, des réponses oEmbed |
 | `edition_fichiers` | `true` | Retire l'éditeur de code de l'administration |
 | `maj_coeur` | `true` | Coupe les mises à jour automatiques du cœur, l'annonce des nouvelles versions et l'e-mail correspondant |
-| `televersement` | `true` | Refuse les extensions exécutables, retire le SVG |
+| `televersement` | `true` | Refuse les extensions exécutables, retire le SVG à la priorité 10 |
+| `svg_restreint` | `false` | Retire le SVG aux comptes sans `unfiltered_html`, à la priorité `PHP_INT_MAX` |
 
 Un site désactive un module depuis son propre mu-plugin :
 
@@ -115,9 +117,13 @@ défaut.** Sans lui, la réponse `/wp-json/oembed/1.0/embed` d'un contenu publie
 `author_name` et `author_url`, qui contient l'identifiant. Un site qui allume
 `enumeration` allume aussi `oembed_auteur`, sinon l'identifiant reste lisible.
 
-**`televersement` refuse le SVG.** Un SVG est un document XML qui peut contenir du
-script, exécuté dans le contexte du domaine. Un site qui en a besoin installe d'abord un
-assainisseur, puis désactive le module.
+**`televersement` refuse le SVG, à la priorité 10.** Un SVG est un document XML qui peut
+contenir du script, exécuté dans le contexte du domaine. Un thème ou une extension branché
+après le module peut remettre le SVG ; Flatsome, par exemple, l'ouvre aux administrateurs.
+`svg_restreint` ajoute alors un second contrôle, à la priorité `PHP_INT_MAX` : le SVG reste
+aux comptes `unfiltered_html`, qui peuvent déjà publier du script, et il est retiré à tous
+les autres, comme WordPress le fait pour le HTML et le JavaScript. Un site qui ouvre le SVG
+à d'autres comptes installe d'abord un assainisseur et laisse `svg_restreint` éteint.
 
 **`entetes` pose `X-Frame-Options: SAMEORIGIN`.** Si un partenaire affiche légitimement
 le site dans un cadre depuis un autre domaine, l'en-tête doit être ajusté par le filtre.

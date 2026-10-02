@@ -30,7 +30,7 @@ bru_cas(
 			}
 		}
 
-		bru_egal( array( 'oembed_auteur' ), $eteints, 'seules les exceptions nommées sont éteintes par défaut' );
+		bru_egal( array( 'oembed_auteur', 'svg_restreint' ), $eteints, 'seules les exceptions nommées sont éteintes par défaut' );
 	}
 );
 
@@ -110,6 +110,7 @@ bru_cas(
 			array( 'filtres', 'oembed_response_data', Enumeration::class, 'retirer_auteur_oembed' ),
 			array( 'filtres', 'file_mod_allowed', Fichiers::class, 'interdire_edition' ),
 			array( 'filtres', 'upload_mimes', Televersement::class, 'retirer_svg' ),
+			array( 'filtres', 'upload_mimes', Televersement::class, 'restreindre_svg' ),
 			array( 'filtres', 'wp_handle_upload_prefilter', Televersement::class, 'refuser_fichier_dangereux' ),
 		);
 

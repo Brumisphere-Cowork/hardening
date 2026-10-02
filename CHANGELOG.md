@@ -3,6 +3,32 @@
 Une entrée par version publiée, la plus récente en tête. Classement des versions :
 section « Politique de version » du README.
 
+## 1.2.0 — 2026-10-02
+
+Version mineure.
+
+### Ajouté
+
+- **Interrupteur `svg_restreint`, éteint par défaut.** Allumé, il retire le SVG des types
+  acceptés pour tout compte sans `unfiltered_html` (filtre `upload_mimes`, priorité
+  `PHP_INT_MAX`, deux arguments). La règle est celle de `get_allowed_mime_types()` :
+  l'utilisateur passé par WordPress s'il y en a un, l'utilisateur courant sinon.
+- Le retrait du SVG par `televersement` est inchangé, à la priorité 10.
+
+### Raison
+
+Le retrait de `televersement` passe avant les thèmes et les extensions : un thème qui
+ajoute le SVG le remet. Constaté sur une reprise, dont le thème réserve le SVG aux
+administrateurs pour un logo vectoriel. `svg_restreint` garde ce choix et ferme le SVG
+aux autres comptes, quoi qu'ajoutent les extensions.
+
+### Classement
+
+Nouvel interrupteur, éteint par défaut : aucun site ne change de comportement sans le
+décider. Mineure, selon la table du README. C'est la deuxième exception au principe
+« tous les modules actifs par défaut », après `oembed_auteur`. Il sera allumé à la
+prochaine version majeure.
+
 ## 1.1.0 — 2026-10-01
 
 Version mineure.

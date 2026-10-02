@@ -27,6 +27,12 @@ defined( 'ABSPATH' ) || exit;
  * domaine à l'ouverture du fichier. WordPress ne l'accepte pas par défaut ; ce module
  * le retire à nouveau, car une extension a pu l'ajouter. Un site qui a réellement
  * besoin du SVG doit d'abord installer un assainisseur, puis désactiver ce module.
+ *
+ * Ce retrait se fait à la priorité 10 : un thème ou une extension branché après lui peut
+ * remettre le SVG. L'interrupteur svg_restreint, éteint par défaut, ajoute un second
+ * contrôle à la priorité PHP_INT_MAX, qui retire le SVG aux seuls comptes sans
+ * unfiltered_html, comme WordPress le fait pour le HTML et le JavaScript. Un site qui
+ * réserve le SVG à ses administrateurs, pour un logo vectoriel par exemple, l'allume.
  */
 final class Televersement {
 
@@ -52,10 +58,16 @@ final class Televersement {
 	private const EXTENSIONS_RETIREES = array( 'svg', 'svgz' );
 
 	/**
+	 * Priorité du contrôle svg_restreint : après les thèmes et les extensions.
+	 */
+	private const PRIORITE_SVG_RESTREINT = PHP_INT_MAX;
+
+	/**
 	 * Branche le module.
 	 */
 	public static function enregistrer(): void {
 		add_filter( 'upload_mimes', array( self::class, 'retirer_svg' ) );
+		add_filter( 'upload_mimes', array( self::class, 'restreindre_svg' ), self::PRIORITE_SVG_RESTREINT, 2 );
 		add_filter( 'wp_handle_upload_prefilter', array( self::class, 'refuser_fichier_dangereux' ) );
 	}
 
@@ -75,6 +87,42 @@ final class Televersement {
 			return $types;
 		}
 
+		return self::sans_svg( $types );
+	}
+
+	/**
+	 * Retire le SVG aux comptes qui n'ont pas unfiltered_html.
+	 *
+	 * Public car branché sur un filtre ; ne pas appeler directement.
+	 *
+	 * Branché à PHP_INT_MAX, après les thèmes et les extensions qui ajoutent le SVG. La
+	 * règle est celle de get_allowed_mime_types() pour le HTML et le JavaScript :
+	 * l'utilisateur passé par WordPress s'il y en a un, l'utilisateur courant sinon.
+	 *
+	 * @param array<string, string> $types       Extensions acceptées et leur type MIME.
+	 * @param int|\WP_User|null     $utilisateur Utilisateur passé par get_allowed_mime_types().
+	 * @return array<string, string>
+	 */
+	public static function restreindre_svg( array $types, $utilisateur = null ): array {
+		if ( ! Hardening::actif( 'svg_restreint' ) ) {
+			return $types;
+		}
+
+		$confiance = $utilisateur ? user_can( $utilisateur, 'unfiltered_html' ) : current_user_can( 'unfiltered_html' );
+
+		return $confiance ? $types : self::sans_svg( $types );
+	}
+
+	/**
+	 * Retire toute clé qui contient svg ou svgz.
+	 *
+	 * Une clé de cette liste peut regrouper plusieurs extensions, sous la forme
+	 * "svg|svgz". Retirer la clé exacte ne suffit donc pas.
+	 *
+	 * @param array<string, string> $types Extensions acceptées et leur type MIME.
+	 * @return array<string, string>
+	 */
+	private static function sans_svg( array $types ): array {
 		foreach ( array_keys( $types ) as $cle ) {
 			$extensions = explode( '|', strtolower( (string) $cle ) );
 

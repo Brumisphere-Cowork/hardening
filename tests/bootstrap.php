@@ -51,6 +51,8 @@ function bru_reinitialiser(): void {
 		'is_user_logged_in' => false,
 		'headers_sent'      => false,
 		'requete'           => array(),
+		'capacites'         => array(),
+		'capacites_de'      => array(),
 	);
 
 	\Brumisphere\Hardening\Hardening::reinitialiser();
@@ -109,6 +111,29 @@ function apply_filters( string $accroche, $valeur, ...$reste ) {
 	}
 
 	return $valeur;
+}
+
+/**
+ * Indique si l'utilisateur courant a une capacité.
+ *
+ * @param string $capacite Capacité demandée.
+ * @param mixed  ...$reste Arguments supplémentaires, ignorés.
+ */
+function current_user_can( string $capacite, ...$reste ): bool {
+	return in_array( $capacite, $GLOBALS['bru']['capacites'], true );
+}
+
+/**
+ * Indique si un utilisateur donné a une capacité.
+ *
+ * @param int|object $utilisateur Identifiant ou objet utilisateur.
+ * @param string     $capacite    Capacité demandée.
+ * @param mixed      ...$reste    Arguments supplémentaires, ignorés.
+ */
+function user_can( $utilisateur, string $capacite, ...$reste ): bool {
+	$id = is_object( $utilisateur ) ? (int) $utilisateur->ID : (int) $utilisateur;
+
+	return in_array( $capacite, $GLOBALS['bru']['capacites_de'][ $id ] ?? array(), true );
 }
 
 /**
